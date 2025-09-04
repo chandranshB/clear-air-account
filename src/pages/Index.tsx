@@ -10,7 +10,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header currentView={currentView} onViewChange={setCurrentView} />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container-mobile mx-auto py-4 sm:py-8">
         {currentView === 'public' ? <PublicDashboard /> : <GovernmentDashboard />}
       </main>
     </div>

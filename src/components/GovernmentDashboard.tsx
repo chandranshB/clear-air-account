@@ -70,19 +70,19 @@ const getPriorityColor = (priority: string) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Alert Banner */}
-      <Card className="border-destructive bg-destructive/5">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-3">
-            <Bell className="h-5 w-5 text-destructive animate-pulse" />
-            <div className="flex-1">
-              <div className="font-medium text-destructive">High Priority Alert</div>
-              <div className="text-sm text-destructive/80">
+      <Card className="border-destructive bg-destructive/5 animate-scale-in">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+            <Bell className="h-5 w-5 text-destructive animate-pulse flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-destructive text-sm sm:text-base">High Priority Alert</div>
+              <div className="text-xs sm:text-sm text-destructive/80">
                 Industrial emission spike detected in Phase-1 area. Immediate investigation required.
               </div>
             </div>
-            <Button size="sm" variant="destructive">
+            <Button size="sm" variant="destructive" className="self-start sm:self-auto btn-mobile">
               Investigate
             </Button>
           </div>
@@ -90,7 +90,7 @@ const getPriorityColor = (priority: string) => {
       </Card>
 
       {/* Enforcement Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center space-x-3">

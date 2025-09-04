@@ -11,23 +11,23 @@ import {
   MapPin,
   Clock
 } from "lucide-react";
-import PollutionMap from "./PollutionMap";
+import RealPollutionMap from "./RealPollutionMap";
 
 const PublicDashboard = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Hero Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="hover-scale">
+          <CardContent className="card-mobile">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-air-poor/10 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-air-poor" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-air-poor/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-air-poor" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">156</p>
-                <p className="text-sm text-muted-foreground">Current AQI</p>
-                <Badge variant="outline" className="bg-air-poor text-white border-air-poor">
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold">156</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Current AQI</p>
+                <Badge variant="outline" className="bg-air-poor text-white border-air-poor text-xs">
                   Poor
                 </Badge>
               </div>
@@ -35,54 +35,54 @@ const PublicDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="hover-scale">
+          <CardContent className="card-mobile">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <Shield className="h-6 w-6 text-destructive" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-destructive/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">847</p>
-                <p className="text-sm text-muted-foreground">Violations Today</p>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold">847</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Violations Today</p>
                 <div className="flex items-center text-xs text-destructive">
                   <TrendingUp className="h-3 w-3 mr-1" />
-                  +23% from yesterday
+                  <span className="truncate">+23% from yesterday</span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="hover-scale">
+          <CardContent className="card-mobile">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <FileText className="h-6 w-6 text-success" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">₹24.5L</p>
-                <p className="text-sm text-muted-foreground">Fines Issued</p>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold">₹24.5L</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Fines Issued</p>
                 <div className="flex items-center text-xs text-success">
                   <Users className="h-3 w-3 mr-1" />
-                  342 violators
+                  <span className="truncate">342 violators</span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="hover-scale">
+          <CardContent className="card-mobile">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <div>
-                <p className="text-2xl font-bold">1,247</p>
-                <p className="text-sm text-muted-foreground">Citizen Reports</p>
+              <div className="min-w-0">
+                <p className="text-xl sm:text-2xl font-bold">1,247</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Citizen Reports</p>
                 <div className="flex items-center text-xs text-muted-foreground">
                   <Clock className="h-3 w-3 mr-1" />
-                  Last hour
+                  <span className="truncate">Last hour</span>
                 </div>
               </div>
             </div>
@@ -91,68 +91,68 @@ const PublicDashboard = () => {
       </div>
 
       {/* Interactive Map */}
-      <PollutionMap />
+      <RealPollutionMap />
 
       {/* Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Camera className="h-5 w-5" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="hover-scale">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+              <Camera className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Report a Polluter</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
+          <CardContent className="card-mobile space-y-3 sm:space-y-4">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Spotted a violation? Help us maintain clean air by reporting polluters with photo evidence.
             </p>
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-success rounded-full flex-shrink-0"></div>
                 <span>Automatic location tagging</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-success rounded-full flex-shrink-0"></div>
                 <span>Real-time status tracking</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-success rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-success rounded-full flex-shrink-0"></div>
                 <span>Reward points for verified reports</span>
               </div>
             </div>
-            <Button className="w-full">
+            <Button className="w-full btn-mobile animate-scale-in">
               <Camera className="h-4 w-4 mr-2" />
               Start Report
             </Button>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <MapPin className="h-5 w-5" />
+        <Card className="hover-scale">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center space-x-2 text-base sm:text-lg">
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Clean Route Navigator</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
+          <CardContent className="card-mobile space-y-3 sm:space-y-4">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Plan your journey through cleaner air zones and avoid heavily polluted areas.
             </p>
             <div className="space-y-2">
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-air-good rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-air-good rounded-full flex-shrink-0"></div>
                 <span>Real-time air quality routing</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-air-good rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-air-good rounded-full flex-shrink-0"></div>
                 <span>Health impact calculator</span>
               </div>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-2 h-2 bg-air-good rounded-full"></div>
+              <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                <div className="w-2 h-2 bg-air-good rounded-full flex-shrink-0"></div>
                 <span>Alternative route suggestions</span>
               </div>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full btn-mobile">
               <MapPin className="h-4 w-4 mr-2" />
               Plan Clean Route
             </Button>
@@ -161,11 +161,11 @@ const PublicDashboard = () => {
       </div>
 
       {/* Recent Violations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Enforcement Actions</CardTitle>
+      <Card className="animate-fade-in">
+        <CardHeader className="pb-3 sm:pb-6">
+          <CardTitle className="text-base sm:text-lg">Recent Enforcement Actions</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="card-mobile">
           <div className="space-y-4">
             {[
               {
@@ -190,14 +190,14 @@ const PublicDashboard = () => {
                 status: "Compliance Required"
               }
             ].map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{item.violation}</div>
-                  <div className="text-sm text-muted-foreground">{item.location}</div>
+              <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-muted/30 rounded-lg hover-scale space-y-2 sm:space-y-0">
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm sm:text-base truncate">{item.violation}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground truncate">{item.location}</div>
                   <div className="text-xs text-muted-foreground">{item.time}</div>
                 </div>
-                <div className="text-right">
-                  <div className="font-medium text-destructive">{item.fine}</div>
+                <div className="text-left sm:text-right flex sm:block justify-between items-center sm:items-end">
+                  <div className="font-medium text-destructive text-sm sm:text-base">{item.fine}</div>
                   <Badge variant="outline" className="text-xs">
                     {item.status}
                   </Badge>
