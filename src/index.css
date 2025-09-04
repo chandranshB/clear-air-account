@@ -2,39 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Air Pollution Monitoring System Design System 
+All colors MUST be HSL. Environment-focused with authority and trust.
 */
 
 @layer base {
   :root {
+    /* Core System Colors */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 26% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 26% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 26% 14%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Authority & Trust - Deep Government Blue */
+    --primary: 219 43% 24%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 219 43% 19%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Professional Secondary */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 26% 14%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 94%;
+    --accent-foreground: 220 26% 14%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Pollution Level Colors */
+    --air-excellent: 120 61% 34%;      /* Deep Green - Good Air */
+    --air-good: 75 70% 41%;            /* Light Green */  
+    --air-moderate: 45 93% 47%;        /* Yellow - Caution */
+    --air-poor: 25 95% 53%;            /* Orange - Warning */
+    --air-severe: 0 84% 60%;           /* Red - Danger */
+    --air-hazardous: 300 76% 32%;      /* Purple - Extreme */
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* System States */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --success: 120 61% 34%;
+    --success-foreground: 0 0% 98%;
+    
+    --warning: 45 93% 47%;
+    --warning-foreground: 220 26% 14%;
+
+    /* UI Elements */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 219 43% 24%;
+
+    --radius: 0.5rem;
+
+    /* Environmental Gradients */
+    --gradient-clean: linear-gradient(135deg, hsl(var(--air-excellent)), hsl(var(--air-good)));
+    --gradient-polluted: linear-gradient(135deg, hsl(var(--air-poor)), hsl(var(--air-severe)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(219 43% 30%));
+    
+    /* Data Visualization */
+    --chart-grid: 220 13% 91%;
+    --chart-text: 220 8.9% 46.1%;
+    
+    /* Government Interface Specific */
+    --gov-emergency: 0 84% 60%;
+    --gov-alert: 25 95% 53%;  
+    --gov-success: 120 61% 34%;
+    
+    /* Shadows for Authority */
+    --shadow-card: 0 1px 3px 0 hsl(220 43% 11% / 0.1);
+    --shadow-enforcement: 0 4px 6px -1px hsl(var(--primary) / 0.1);
 
     --radius: 0.5rem;
 
