@@ -7,8 +7,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
-    port: 8080,
+    // host: "::",
+    host: "0.0.0.0",
+    port: 8080, 
+    allowedHosts: [
+      '*'  // your ngrok domain
+    ]
   },
   plugins: [
     react(),
@@ -26,9 +30,6 @@ export default defineConfig(({ mode }) => ({
               expiration: {
                 maxEntries: 1000,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-              cacheKeyWillBeUsed: async ({ request }) => {
-                return `${request.url}`;
               },
             },
           },
