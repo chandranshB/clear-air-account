@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Factory, Car, Hammer, Flame, Layers, Maximize } from "lucide-react";
+import { MapPin, Factory, Car, Hammer, Flame, Layers } from "lucide-react";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -115,21 +115,28 @@ const getViolatorIcon = (type: string) => {
 const PollutionMap = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Layer[]>([]);
   const [selectedZone, setSelectedZone] = useState<string | null>(null);
   const [showHeatmap, setShowHeatmap] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const selectedZoneData = pollutionZones.find(zone => zone.id === selectedZone);
 
+  // Initialize map once
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Initialize map centered on Dehradun
-    const map = L.map(mapRef.current).setView([30.3165, 78.0322], 12);
+    const map = L.map(mapRef.current, {
+      center: [30.3165, 78.0322],
+      zoom: 12,
+      zoomControl: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      dragging: true
+    });
 
-    // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18
     }).addTo(map);
 
     mapInstanceRef.current = map;
@@ -142,129 +149,103 @@ const PollutionMap = () => {
     };
   }, []);
 
+  // Update markers when heatmap visibility changes
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
     const map = mapInstanceRef.current;
     
-    // Clear existing markers and layers
-    map.eachLayer((layer) => {
-      if (layer instanceof L.CircleMarker || layer instanceof L.Circle) {
-        map.removeLayer(layer);
-      }
-    });
+    // Clear existing markers
+    markersRef.current.forEach(layer => map.removeLayer(layer));
+    markersRef.current = [];
 
-    // Add pollution zone markers with enhanced visuals
+    // Add pollution zone markers
     pollutionZones.forEach((zone) => {
-      // Calculate dynamic sizes based on AQI
-      const markerSize = Math.max(12, Math.min(25, zone.aqi / 8));
-      const heatmapRadius = zone.aqi * 75; // Increased for better visibility
+      const markerSize = Math.max(8, Math.min(20, zone.aqi / 10));
+      const heatmapRadius = Math.max(50, Math.min(200, zone.aqi * 1.2)); // Realistic size
       
-      // Main marker with pulsing effect for high pollution
+      // Main pollution marker
       const marker = L.circleMarker([zone.coordinates[0], zone.coordinates[1]], {
-        color: zone.aqi > 150 ? '#ffffff' : 'rgba(255,255,255,0.8)',
-        weight: zone.aqi > 150 ? 3 : 2,
+        color: '#ffffff',
+        weight: 2,
         fillColor: getAqiColor(zone.level),
-        fillOpacity: 0.85,
-        radius: markerSize,
-        className: zone.aqi > 150 ? 'animate-pulse' : ''
-      }).addTo(map);
+        fillOpacity: 0.9,
+        radius: markerSize
+      });
 
-      // Multi-layer heatmap for realistic pollution spread
+      // Realistic heatmap layers (only if enabled)
       if (showHeatmap) {
-        // Outer layer - very light
-        L.circle([zone.coordinates[0], zone.coordinates[1]], {
+        // Outer fading circle
+        const outerCircle = L.circle([zone.coordinates[0], zone.coordinates[1]], {
           color: 'transparent',
           fillColor: getAqiColor(zone.level),
-          fillOpacity: 0.1,
-          radius: heatmapRadius * 1.5,
-          weight: 0
-        }).addTo(map);
-        
-        // Middle layer - medium opacity
-        L.circle([zone.coordinates[0], zone.coordinates[1]], {
-          color: 'transparent',
-          fillColor: getAqiColor(zone.level),
-          fillOpacity: 0.2,
+          fillOpacity: 0.08,
           radius: heatmapRadius,
           weight: 0
-        }).addTo(map);
+        });
         
-        // Inner layer - higher opacity
-        L.circle([zone.coordinates[0], zone.coordinates[1]], {
+        // Inner stronger circle  
+        const innerCircle = L.circle([zone.coordinates[0], zone.coordinates[1]], {
           color: 'transparent',
           fillColor: getAqiColor(zone.level),
-          fillOpacity: 0.3,
+          fillOpacity: 0.15,
           radius: heatmapRadius * 0.6,
           weight: 0
-        }).addTo(map);
+        });
+
+        outerCircle.addTo(map);
+        innerCircle.addTo(map);
+        markersRef.current.push(outerCircle, innerCircle);
       }
 
-      // Enhanced popup with trends and forecasts
+      // Enhanced popup
       const violatorsList = zone.violators.map(v => 
-        `<li class="flex justify-between"><strong>${v.name}</strong><span>${v.contribution}%</span></li>`
+        `<li style="display: flex; justify-content: space-between; margin: 2px 0;"><strong>${v.name}</strong><span>${v.contribution}%</span></li>`
       ).join('');
 
-      // Simulate trend data
       const trend = zone.aqi > 100 ? 'increasing' : 'stable';
-      const trendIcon = trend === 'increasing' ? '📈' : '📊';
       const forecast = zone.aqi > 150 ? 'Poor for next 3 hours' : 'Moderate conditions expected';
 
       marker.bindPopup(`
-        <div class="text-sm max-w-xs">
-          <h3 class="font-bold text-base mb-2 text-gray-800">${zone.name}</h3>
+        <div style="max-width: 280px; font-size: 13px;">
+          <h3 style="font-weight: bold; margin-bottom: 8px; color: #1f2937;">${zone.name}</h3>
           
-          <div class="mb-3">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm" 
-                  style="background-color: ${getAqiColor(zone.level)}">
+          <div style="margin-bottom: 12px;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; color: white; background-color: ${getAqiColor(zone.level)};">
               AQI: ${zone.aqi} (${zone.level.toUpperCase()})
             </span>
           </div>
           
-          <div class="mb-3">
-            <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
-              <span>📈 Trend: ${trend}</span>
-              <span>${trendIcon}</span>
-            </div>
-            <div class="text-xs text-gray-600">
-              🔮 Forecast: ${forecast}
+          <div style="margin-bottom: 12px; padding: 8px; background: #f9fafb; border-radius: 6px;">
+            <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">
+              📈 Trend: ${trend} | 🔮 Forecast: ${forecast}
             </div>
           </div>
           
-          <div class="border-t pt-2">
-            <strong class="text-red-600 text-xs">Main Contributors:</strong>
-            <ul class="mt-1 space-y-1 text-xs">${violatorsList}</ul>
-          </div>
-          
-          <div class="mt-2 pt-2 border-t">
-            <button class="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 transition-colors">
-              View Historical Data
-            </button>
+          <div style="border-top: 1px solid #e5e7eb; padding-top: 8px;">
+            <strong style="color: #dc2626; font-size: 11px;">Main Contributors:</strong>
+            <ul style="margin: 4px 0 0 0; padding: 0; list-style: none; font-size: 11px;">${violatorsList}</ul>
           </div>
         </div>
       `, {
-        maxWidth: 320,
+        maxWidth: 300,
         className: 'custom-popup'
       });
 
       marker.on('click', () => {
         setSelectedZone(selectedZone === zone.id ? null : zone.id);
       });
-    });
 
-    // Handle fullscreen map resizing
-    if (isFullscreen) {
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 300);
-    }
-  }, [showHeatmap, selectedZone, isFullscreen]);
+      marker.addTo(map);
+      markersRef.current.push(marker);
+    });
+  }, [showHeatmap, selectedZone]);
 
   return (
-    <div className={`transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 bg-background' : 'grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-3'}`}>
+    <div className="grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-3">
       {/* Map Container */}
-      <Card className={`${isFullscreen ? 'h-full border-0 rounded-none' : 'lg:col-span-2'} transition-all duration-300`}>
-        <CardHeader className={`${isFullscreen ? 'absolute top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur-sm' : ''} pb-3`}>
+      <Card className="lg:col-span-2">
+        <CardHeader className="pb-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <CardTitle className="flex items-center space-x-2">
               <MapPin className="h-5 w-5" />
@@ -280,148 +261,136 @@ const PollutionMap = () => {
                 <Layers className="h-4 w-4" />
                 <span className="hidden sm:inline">{showHeatmap ? 'Hide' : 'Show'} Heatmap</span>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="flex items-center space-x-1"
-              >
-                <Maximize className="h-4 w-4" />
-                <span className="hidden sm:inline">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
-              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0 relative">
           <div 
             ref={mapRef} 
-            className={`w-full rounded-b-lg ${isFullscreen ? 'h-screen' : 'h-64 sm:h-80 lg:h-96'}`}
-            style={{ zIndex: 1 }}
+            className="w-full h-64 sm:h-80 lg:h-96 rounded-b-lg"
           />
         </CardContent>
       </Card>
 
-      {/* Zone Details - Hidden in fullscreen mode */}
-      {!isFullscreen && (
-        <Card className="animate-fade-in">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base sm:text-lg">
-              {selectedZoneData ? 'Zone Analysis' : 'City Overview'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="card-mobile">
-            {selectedZoneData ? (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg">{selectedZoneData.name}</h3>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <Badge 
-                      className="text-white border-0"
-                      style={{ backgroundColor: getAqiColor(selectedZoneData.level) }}
-                    >
-                      AQI: {selectedZoneData.aqi}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground capitalize">
-                      {selectedZoneData.level}
-                    </span>
+      {/* Zone Details */}
+      <Card className="animate-fade-in">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base sm:text-lg">
+            {selectedZoneData ? 'Zone Analysis' : 'City Overview'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="card-mobile">
+          {selectedZoneData ? (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{selectedZoneData.name}</h3>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Badge 
+                    className="text-white border-0"
+                    style={{ backgroundColor: getAqiColor(selectedZoneData.level) }}
+                  >
+                    AQI: {selectedZoneData.aqi}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground capitalize">
+                    {selectedZoneData.level}
+                  </span>
+                </div>
+              </div>
+
+              {/* Pollution Trends */}
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <h4 className="font-medium text-sm mb-2">24h Trend</h4>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-background rounded-full h-2">
+                    <div 
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${Math.min(100, selectedZoneData.aqi / 3)}%`,
+                        backgroundColor: getAqiColor(selectedZoneData.level)
+                      }}
+                    />
                   </div>
+                  <span className="text-xs text-muted-foreground">
+                    {selectedZoneData.aqi > 100 ? '+12%' : '-5%'}
+                  </span>
                 </div>
+              </div>
 
-                {/* Pollution Trends */}
-                <div className="bg-muted/30 p-3 rounded-lg">
-                  <h4 className="font-medium text-sm mb-2">24h Trend</h4>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex-1 bg-background rounded-full h-2">
-                      <div 
-                        className="h-2 rounded-full transition-all duration-500"
-                        style={{ 
-                          width: `${Math.min(100, selectedZoneData.aqi / 3)}%`,
-                          backgroundColor: getAqiColor(selectedZoneData.level)
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedZoneData.aqi > 100 ? '+12%' : '-5%'}
-                    </span>
-                  </div>
-                </div>
+              {/* Forecast */}
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <h4 className="font-medium text-sm mb-2">3-Hour Forecast</h4>
+                <p className="text-xs text-muted-foreground">
+                  {selectedZoneData.aqi > 150 
+                    ? 'Air quality expected to remain poor. Avoid outdoor activities.' 
+                    : 'Moderate conditions expected. Take precautions for sensitive individuals.'}
+                </p>
+              </div>
 
-                {/* Forecast */}
-                <div className="bg-muted/30 p-3 rounded-lg">
-                  <h4 className="font-medium text-sm mb-2">3-Hour Forecast</h4>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedZoneData.aqi > 150 
-                      ? 'Air quality expected to remain poor. Avoid outdoor activities.' 
-                      : 'Moderate conditions expected. Take precautions for sensitive individuals.'}
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-sm mb-3 text-destructive">
-                    Identified Violators:
-                  </h4>
-                  <div className="space-y-2">
-                    {selectedZoneData.violators.map((violator, idx) => {
-                      const IconComponent = getViolatorIcon(violator.type);
-                      return (
-                        <div key={idx} className="flex items-center space-x-3 p-2 bg-muted/50 rounded hover-scale cursor-pointer">
-                          <IconComponent className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium truncate">
-                              {violator.name}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {violator.contribution}% contribution
-                            </div>
+              <div>
+                <h4 className="font-medium text-sm mb-3 text-destructive">
+                  Identified Violators:
+                </h4>
+                <div className="space-y-2">
+                  {selectedZoneData.violators.map((violator, idx) => {
+                    const IconComponent = getViolatorIcon(violator.type);
+                    return (
+                      <div key={idx} className="flex items-center space-x-3 p-2 bg-muted/50 rounded hover-scale cursor-pointer">
+                        <IconComponent className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {violator.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {violator.contribution}% contribution
                           </div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <Button 
-                  className="w-full btn-mobile animate-scale-in"
-                  onClick={() => console.log('Take action on violators')}
-                >
-                  Take Enforcement Action
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* City Average */}
-                <div className="bg-muted/30 p-4 rounded-lg">
-                  <h4 className="font-medium text-sm mb-2">City Average AQI</h4>
-                  <div className="flex items-center space-x-3">
-                    <div className="text-2xl font-bold">112</div>
-                    <div>
-                      <Badge className="bg-air-poor text-white">Moderate</Badge>
-                      <p className="text-xs text-muted-foreground mt-1">Based on 5 monitoring stations</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Quick Stats */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-muted/30 p-3 rounded-lg text-center">
-                    <div className="text-lg font-bold text-air-poor">3</div>
-                    <div className="text-xs text-muted-foreground">High pollution zones</div>
-                  </div>
-                  <div className="bg-muted/30 p-3 rounded-lg text-center">
-                    <div className="text-lg font-bold text-air-good">2</div>
-                    <div className="text-xs text-muted-foreground">Clean zones</div>
-                  </div>
-                </div>
-
-                <div className="text-center py-4 text-muted-foreground">
-                  <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Click on any zone marker to view detailed analysis</p>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+
+              <Button 
+                className="w-full btn-mobile animate-scale-in"
+                onClick={() => console.log('Take action on violators')}
+              >
+                Take Enforcement Action
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* City Average */}
+              <div className="bg-muted/30 p-4 rounded-lg">
+                <h4 className="font-medium text-sm mb-2">City Average AQI</h4>
+                <div className="flex items-center space-x-3">
+                  <div className="text-2xl font-bold">112</div>
+                  <div>
+                    <Badge className="bg-air-poor text-white">Moderate</Badge>
+                    <p className="text-xs text-muted-foreground mt-1">Based on 5 monitoring stations</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-muted/30 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-air-poor">3</div>
+                  <div className="text-xs text-muted-foreground">High pollution zones</div>
+                </div>
+                <div className="bg-muted/30 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-air-good">2</div>
+                  <div className="text-xs text-muted-foreground">Clean zones</div>
+                </div>
+              </div>
+
+              <div className="text-center py-4 text-muted-foreground">
+                <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Click on any zone marker to view detailed analysis</p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

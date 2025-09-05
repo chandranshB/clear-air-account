@@ -17,7 +17,8 @@ import {
   Factory,
   Car,
   Hammer,
-  Flame
+  Flame,
+  Video
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -80,10 +81,12 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
     severity: 'moderate' as 'low' | 'moderate' | 'high' | 'severe'
   });
   const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([]);
   const [location, setLocation] = useState<LocationData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLocationLoading, setIsLocationLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const getCurrentLocation = async () => {
@@ -198,6 +201,7 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
         ...formData,
         location,
         images,
+        videos,
         timestamp: new Date().toISOString(),
         id: Date.now().toString(),
         status: 'submitted'
@@ -216,6 +220,7 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
       // Reset form
       setFormData({ type: '', description: '', severity: 'moderate' });
       setImages([]);
+      setVideos([]);
       setLocation(null);
       onClose();
     } catch (error) {
@@ -229,8 +234,63 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
     }
   };
 
+  const handleVideoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    
+    if (files.length === 0) return;
+    
+    if (videos.length + files.length > 2) {
+      toast({
+        title: "Too many videos",
+        description: "You can upload maximum 2 videos per report.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file size (max 50MB per video)
+    const oversizedFiles = files.filter(file => file.size > 50 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast({
+        title: "File too large",
+        description: "Video files must be smaller than 50MB each.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const videoUrls = await Promise.all(
+        files.map(file => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        })
+      );
+      
+      setVideos(prev => [...prev, ...videoUrls]);
+      toast({
+        title: "Videos uploaded",
+        description: `${files.length} video(s) added successfully.`
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Error",
+        description: "Failed to process videos. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const removeImage = (index: number) => {
     setImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeVideo = (index: number) => {
+    setVideos(prev => prev.filter((_, i) => i !== index));
   };
 
   const getSeverityColor = (severity: string) => {
@@ -386,6 +446,56 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
                         variant="destructive"
                         className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                         onClick={() => removeImage(index)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Video Upload */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Evidence Videos (Optional)</Label>
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                onClick={() => videoInputRef.current?.click()}
+                className="w-full flex items-center space-x-2"
+                disabled={videos.length >= 2}
+              >
+                <Video className="h-4 w-4" />
+                <span>Upload Videos ({videos.length}/2)</span>
+              </Button>
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/*"
+                multiple
+                onChange={handleVideoUpload}
+                className="hidden"
+              />
+              
+              {videos.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {videos.map((video, index) => (
+                    <div key={index} className="relative">
+                      <video
+                        src={video}
+                        className="w-full h-20 object-cover rounded-lg"
+                        controls={false}
+                        muted
+                      />
+                      <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center">
+                        <Video className="h-6 w-6 text-white" />
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={() => removeVideo(index)}
                       >
                         <X className="h-3 w-3" />
                       </Button>
