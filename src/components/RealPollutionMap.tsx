@@ -5,15 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Factory, Car, Hammer, Flame, Layers, Maximize } from "lucide-react";
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix for default markers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
 
 interface PollutionZone {
   id: string;
@@ -126,21 +117,37 @@ const HeatmapLayer = ({ zones }: { zones: PollutionZone[] }) => {
   const map = useMap();
   
   useEffect(() => {
+    const circles: L.Circle[] = [];
+    
     // Create heat circles for gradient effect
     zones.forEach(zone => {
       const intensity = zone.aqi / 300; // normalize to 0-1
       const radius = Math.max(1000, zone.aqi * 10); // radius based on AQI
       
-      const heatCircle = L.circle(zone.coordinates, {
-        radius: radius,
-        fillColor: getAqiColor(zone.level),
-        color: 'transparent',
-        fillOpacity: Math.min(0.4, intensity),
-        weight: 0
-      }).addTo(map);
-      
-      // Cleanup function would be here in a real implementation
+      try {
+        const heatCircle = L.circle([zone.coordinates[0], zone.coordinates[1]], {
+          radius: radius,
+          fillColor: getAqiColor(zone.level),
+          color: 'transparent',
+          fillOpacity: Math.min(0.4, intensity),
+          weight: 0
+        });
+        
+        heatCircle.addTo(map);
+        circles.push(heatCircle);
+      } catch (error) {
+        console.warn('Error creating heat circle:', error);
+      }
     });
+    
+    // Cleanup function
+    return () => {
+      circles.forEach(circle => {
+        if (map && map.hasLayer(circle)) {
+          map.removeLayer(circle);
+        }
+      });
+    };
   }, [map, zones]);
   
   return null;
