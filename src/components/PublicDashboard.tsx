@@ -11,7 +11,7 @@ import {
   MapPin,
   Clock
 } from "lucide-react";
-import RealPollutionMap from "./RealPollutionMap";
+import SimpleMap from "@/components/SimpleMap";
 
 const PublicDashboard = () => {
   return (
@@ -91,7 +91,7 @@ const PublicDashboard = () => {
       </div>
 
       {/* Interactive Map */}
-      <RealPollutionMap />
+      <SimpleMap />
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
