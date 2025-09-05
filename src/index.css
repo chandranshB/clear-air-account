@@ -270,4 +270,3 @@ All colors MUST be HSL. Environment-focused with authority and trust.
 .pollution-marker.hazardous {
   background-color: hsl(var(--air-hazardous));
 }
-}
