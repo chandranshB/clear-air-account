@@ -11,7 +11,7 @@ import {
   MapPin,
   Clock
 } from "lucide-react";
-import SimpleMap from "@/components/SimpleMap";
+import SimpleMap from "./SimpleMap";
 
 const PublicDashboard = () => {
   return (
