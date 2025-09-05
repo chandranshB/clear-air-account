@@ -17,7 +17,7 @@ import {
   Clock,
   DollarSign
 } from "lucide-react";
-import SimpleMap from "./SimpleMap";
+import PollutionMap from "./PollutionMap";
 
 const GovernmentDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -260,7 +260,7 @@ const getPriorityColor = (priority: string) => {
       </Card>
 
       {/* Live Monitoring */}
-      <SimpleMap />
+      <PollutionMap />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
