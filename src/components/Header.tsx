@@ -51,7 +51,7 @@ const Header = ({ currentView, onViewChange }: HeaderProps) => {
             {/* Location - Hidden on small screens */}
             <div className="hidden md:flex items-center space-x-2 text-sm">
               <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground">New Delhi</span>
+              <span className="text-muted-foreground">Dehradun</span>
             </div>
           </div>
         </div>

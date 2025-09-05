@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 import { 
   AlertTriangle, 
   Camera, 
@@ -12,8 +13,11 @@ import {
   Clock
 } from "lucide-react";
 import PollutionMap from "./PollutionMap";
+import ReportForm from "./ReportForm";
 
 const PublicDashboard = () => {
+  const [isReportFormOpen, setIsReportFormOpen] = useState(false);
+
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Hero Stats */}
@@ -120,7 +124,10 @@ const PublicDashboard = () => {
                 <span>Reward points for verified reports</span>
               </div>
             </div>
-            <Button className="w-full btn-mobile animate-scale-in">
+            <Button 
+              className="w-full btn-mobile animate-scale-in"
+              onClick={() => setIsReportFormOpen(true)}
+            >
               <Camera className="h-4 w-4 mr-2" />
               Start Report
             </Button>
@@ -207,6 +214,12 @@ const PublicDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Report Form Modal */}
+      <ReportForm 
+        isOpen={isReportFormOpen} 
+        onClose={() => setIsReportFormOpen(false)} 
+      />
     </div>
   );
 };
