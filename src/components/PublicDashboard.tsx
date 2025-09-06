@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import PollutionMap from "./PollutionMap";
 import ReportForm from "./ReportForm";
+import RouteNavigator from "./RouteNavigator";
 
 const PublicDashboard = () => {
   const [isReportFormOpen, setIsReportFormOpen] = useState(false);
+  const [isRouteNavigatorOpen, setIsRouteNavigatorOpen] = useState(false);
 
   return (
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
@@ -159,7 +161,11 @@ const PublicDashboard = () => {
                 <span>Alternative route suggestions</span>
               </div>
             </div>
-            <Button variant="outline" className="w-full btn-mobile">
+            <Button 
+              variant="outline" 
+              className="w-full btn-mobile"
+              onClick={() => setIsRouteNavigatorOpen(true)}
+            >
               <MapPin className="h-4 w-4 mr-2" />
               Plan Clean Route
             </Button>
@@ -219,6 +225,12 @@ const PublicDashboard = () => {
       <ReportForm 
         isOpen={isReportFormOpen} 
         onClose={() => setIsReportFormOpen(false)} 
+      />
+
+      {/* Route Navigator Modal */}
+      <RouteNavigator
+        isOpen={isRouteNavigatorOpen}
+        onClose={() => setIsRouteNavigatorOpen(false)}
       />
     </div>
   );

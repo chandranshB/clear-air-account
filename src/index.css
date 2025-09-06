@@ -228,6 +228,30 @@ All colors MUST be HSL. Environment-focused with authority and trust.
   opacity: 0.7;
 }
 
+/* Fix Leaflet map z-index to prevent overlay issues */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-control-container {
+  z-index: 10 !important;
+}
+
+.leaflet-popup {
+  z-index: 1000 !important;
+}
+
+/* Ensure proper header z-index layering */
+header, .header, [role="banner"] {
+  z-index: 50 !important;
+  position: relative;
+}
+
+/* Navigation menu items should be above map */
+nav, .navigation, [role="navigation"] {
+  z-index: 100 !important;
+}
+
 .pollution-marker {
   border-radius: 50%;
   border: 2px solid white;
