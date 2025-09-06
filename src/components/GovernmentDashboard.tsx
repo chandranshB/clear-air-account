@@ -18,9 +18,11 @@ import {
   DollarSign
 } from "lucide-react";
 import PollutionMap from "./PollutionMap";
+import ReportForm from "./ReportForm";
 
 const GovernmentDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEnforcementFormOpen, setIsEnforcementFormOpen] = useState(false);
 
   const pendingViolations = [
     {
@@ -83,8 +85,13 @@ const getPriorityColor = (priority: string) => {
                 Industrial emission spike detected in Phase-1 area. Immediate investigation required.
               </div>
             </div>
-            <Button size="sm" variant="destructive" className="self-start sm:self-auto btn-mobile">
-              Investigate
+            <Button 
+              size="sm" 
+              variant="destructive" 
+              className="self-start sm:self-auto btn-mobile"
+              onClick={() => setIsEnforcementFormOpen(true)}
+            >
+              Take Enforcement
             </Button>
           </div>
         </CardContent>
@@ -335,6 +342,13 @@ const getPriorityColor = (priority: string) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Enforcement Form Modal */}
+      <ReportForm 
+        isOpen={isEnforcementFormOpen} 
+        onClose={() => setIsEnforcementFormOpen(false)}
+        isEnforcementMode={true}
+      />
     </div>
   );
 };

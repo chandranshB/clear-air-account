@@ -15,6 +15,7 @@ import {
 import PollutionMap from "./PollutionMap";
 import ReportForm from "./ReportForm";
 import RouteNavigator from "./RouteNavigator";
+import AQITrendChart from "./AQITrendChart";
 
 const PublicDashboard = () => {
   const [isReportFormOpen, setIsReportFormOpen] = useState(false);
@@ -98,6 +99,9 @@ const PublicDashboard = () => {
 
       {/* Interactive Map */}
       <PollutionMap />
+
+      {/* AQI Trend Chart */}
+      <AQITrendChart />
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

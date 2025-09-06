@@ -31,6 +31,7 @@ interface LocationData {
 interface ReportFormProps {
   isOpen: boolean;
   onClose: () => void;
+  isEnforcementMode?: boolean;
 }
 
 const pollutionTypes = [
@@ -74,7 +75,7 @@ const convertToWebP = (file: File): Promise<string> => {
   });
 };
 
-const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
+const ReportForm = ({ isOpen, onClose, isEnforcementMode = false }: ReportFormProps) => {
   const [formData, setFormData] = useState({
     type: '',
     description: '',
@@ -193,6 +194,32 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
       return;
     }
 
+    // Cross-check location for enforcement mode
+    if (isEnforcementMode) {
+      const enforcementZones = [
+        { name: "Rishav ka ghar", lat: 30.344681, lng: 78.045251, radius: 1 },
+        { name: "Dehradun City Center", lat: 30.3165, lng: 78.0322, radius: 2 },
+        { name: "Industrial Area", lat: 30.3500, lng: 78.0500, radius: 3 }
+      ];
+
+      const isInEnforcementZone = enforcementZones.some(zone => {
+        const distance = Math.sqrt(
+          Math.pow(location.latitude - zone.lat, 2) + 
+          Math.pow(location.longitude - zone.lng, 2)
+        ) * 111; // Rough conversion to km
+        return distance <= zone.radius;
+      });
+
+      if (!isInEnforcementZone) {
+        toast({
+          title: "Outside Enforcement Zone",
+          description: "You must be within an active enforcement zone to file an enforcement action.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     
     try {
@@ -213,8 +240,10 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
       console.log('Report submitted:', reportData);
       
       toast({
-        title: "Report Submitted Successfully!",
-        description: "Your pollution report has been recorded and will be reviewed by authorities.",
+        title: isEnforcementMode ? "Enforcement Action Initiated!" : "Report Submitted Successfully!",
+        description: isEnforcementMode 
+          ? "Enforcement action has been logged and immediate action will be taken." 
+          : "Your pollution report has been recorded and will be reviewed by authorities.",
       });
 
       // Reset form
@@ -316,7 +345,7 @@ const ReportForm = ({ isOpen, onClose }: ReportFormProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Camera className="h-5 w-5" />
-            <span>Report Pollution</span>
+            <span>{isEnforcementMode ? "Take Enforcement Action" : "Report Pollution"}</span>
           </DialogTitle>
         </DialogHeader>
 

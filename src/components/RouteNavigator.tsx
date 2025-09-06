@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MapPin, Navigation, Clock, Route, Heart, Zap, AlertTriangle, CheckCircle } from "lucide-react";
+import { MapPin, Navigation, Clock, Route, Heart, AlertTriangle, CheckCircle, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface RouteNavigatorProps {
@@ -141,6 +141,7 @@ const RouteNavigator = ({ isOpen, onClose }: RouteNavigatorProps) => {
     const cityData = [
       { name: "New Delhi", lat: 28.6139, lng: 77.2090, baseAQI: 160 },
       { name: "Dehradun", lat: 30.3165, lng: 78.0322, baseAQI: 85 },
+      { name: "Rishav ka ghar", lat: 30.344681, lng: 78.045251, baseAQI: 75 },
       { name: "Mumbai", lat: 19.0760, lng: 72.8777, baseAQI: 120 },
       { name: "Bangalore", lat: 12.9716, lng: 77.5946, baseAQI: 95 },
       { name: "Chennai", lat: 13.0827, lng: 80.2707, baseAQI: 110 },
@@ -178,6 +179,7 @@ const RouteNavigator = ({ isOpen, onClose }: RouteNavigatorProps) => {
   const getCityName = async (lat: number, lng: number): Promise<string> => {
     // In a real app, this would use a reverse geocoding API
     // For now, we'll use approximate city detection
+    if (lat > 30.34 && lat < 30.35 && lng > 78.04 && lng < 78.05) return "Rishav ka ghar";
     if (lat > 30.2 && lat < 30.4 && lng > 78.0 && lng < 78.1) return "Dehradun";
     if (lat > 28.5 && lat < 28.7 && lng > 77.1 && lng < 77.3) return "New Delhi";
     return "Current Location";
@@ -302,6 +304,30 @@ const RouteNavigator = ({ isOpen, onClose }: RouteNavigatorProps) => {
     return waypoints;
   };
 
+  const openGoogleMapsNavigation = (route: RouteResult) => {
+    if (route.waypoints.length < 2) return;
+    
+    const origin = `${route.waypoints[0].lat},${route.waypoints[0].lng}`;
+    const destination = `${route.waypoints[route.waypoints.length - 1].lat},${route.waypoints[route.waypoints.length - 1].lng}`;
+    
+    // Add waypoints if more than 2 points
+    let waypointsParam = "";
+    if (route.waypoints.length > 2) {
+      const middlePoints = route.waypoints.slice(1, -1);
+      waypointsParam = middlePoints.map(wp => `${wp.lat},${wp.lng}`).join("|");
+    }
+    
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsParam ? `&waypoints=${waypointsParam}` : ""}&travelmode=walking`;
+    
+    // Open in new tab
+    window.open(googleMapsUrl, '_blank');
+    
+    toast({
+      title: "Navigation started",
+      description: "Opening Google Maps with your clean route",
+    });
+  };
+
   const renderRouteResult = (route: RouteResult, title: string) => (
     <Card className="mt-4">
       <CardHeader>
@@ -344,7 +370,10 @@ const RouteNavigator = ({ isOpen, onClose }: RouteNavigatorProps) => {
           </Badge>
         </div>
 
-        <Button className="w-full">
+        <Button 
+          className="w-full"
+          onClick={() => openGoogleMapsNavigation(route)}
+        >
           <Navigation className="h-4 w-4 mr-2" />
           Start Navigation
         </Button>

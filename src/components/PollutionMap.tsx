@@ -66,6 +66,18 @@ const pollutionZones: PollutionZone[] = [
   },
   {
     id: "4",
+    name: "Rishav ka ghar",
+    coordinates: [30.344681, 78.045251],
+    aqi: 65,
+    level: 'moderate',
+    violators: [
+      { type: 'vehicle', name: 'Residential Traffic', contribution: 40 },
+      { type: 'industry', name: 'Small Workshop', contribution: 35 },
+      { type: 'burning', name: 'Occasional Waste Burning', contribution: 25 }
+    ]
+  },
+  {
+    id: "5",
     name: "Rajpur Road",
     coordinates: [30.3629, 78.0747],
     aqi: 124,
@@ -86,6 +98,18 @@ const pollutionZones: PollutionZone[] = [
       { type: 'industry', name: 'Oil & Gas Operations', contribution: 60 },
       { type: 'vehicle', name: 'Industrial Traffic', contribution: 30 },
       { type: 'burning', name: 'Flare Emissions', contribution: 10 }
+    ]
+  },
+  {
+    id: "6",
+    name: "Rishav ka ghar",
+    coordinates: [30.344681, 78.045251],
+    aqi: 65,
+    level: 'moderate',
+    violators: [
+      { type: 'vehicle', name: 'Residential Traffic', contribution: 40 },
+      { type: 'industry', name: 'Small Workshop', contribution: 35 },
+      { type: 'burning', name: 'Occasional Waste Burning', contribution: 25 }
     ]
   }
 ];
