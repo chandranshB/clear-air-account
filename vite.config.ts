@@ -1,22 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig({
   server: {
-    // host: "::",
     host: "0.0.0.0",
-    port: 8080, 
+    port: 8080,
     allowedHosts: [
-      '*'  // your ngrok domain
+      '*'
     ]
   },
   plugins: [
     react(),
-    mode === 'development' && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
@@ -28,63 +25,40 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: 'openstreetmap-tiles',
               expiration: {
-                maxEntries: 1000,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                maxEntries: 200,
+                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
               },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/nominatim\.openstreetmap\.org\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'nominatim-api',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24, // 1 day
+              cacheableResponse: {
+                statuses: [0, 200],
               },
             },
           },
         ],
       },
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'AirWatch - Pollution Accountability System',
+        name: 'AirWatch - Pollution Accountability',
         short_name: 'AirWatch',
-        description: 'Real-time pollution monitoring and accountability system for citizens and government',
-        theme_color: '#2c5f2f',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        description: 'Real-time air pollution monitoring and accountability system',
+        theme_color: '#ffffff',
         icons: [
           {
-            src: '/icons/icon-192x192.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
+            type: 'image/png',
+          },
         ],
-        categories: ['utilities', 'government', 'environment'],
-        shortcuts: [
-          {
-            name: 'Report Pollution',
-            short_name: 'Report',
-            description: 'Quickly report a pollution incident',
-            url: '/?action=report',
-            icons: [{ src: '/icons/icon-192x192.png', sizes: '192x192' }]
-          }
-        ]
-      }
-    })
-  ].filter(Boolean),
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-}));
+});
